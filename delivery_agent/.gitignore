@@ -1,35 +1,16 @@
-# Python cache and build files
+# Test files
+tests/
+
+# Python cache
 __pycache__/
 *.pyc
 *.pyo
-*.pyd
 
-# Test cache
-.pytest_cache/
-
-# VS Code settings
-.vscode/
+# Development files
+experiment.py
+simulate.py
+interactive.py
 
 # OS files
 .DS_Store
 Thumbs.db
-
-# Environment files
-.env
-
-# Copilot instructions (keep)
-!.github/copilot-instructions.md
-
-# Map and report files (keep)
-!maps/
-!report.md
-
-# Requirements and README (keep)
-!requirements.txt
-!README.md
-
-tests/__pycache__/
-
-# Ignore experiment results
-*.log
-*.csv

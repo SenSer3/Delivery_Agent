@@ -27,25 +27,26 @@ def print_map(env, agent_pos, t, agent):
         row = ""
         for c in range(env.cols):
             if (r, c) == agent_pos:
-                row += "A "  # Agent
+                row += "A-"  # Agent
             elif env.grid[r][c].is_obstacle:
-                row += "# "  # Static obstacle
-            elif any(env.is_occupied(r, c, t) for obs in env.dynamic_obstacles if any(s == t for s in obs.schedule)):
-                row += "O "  # Dynamic obstacle at this time
+                row += "#-"  # Static obstacle
+            elif any(pos == (r, c) and s == t for obs in env.dynamic_obstacles for pos, s in zip(obs.path, obs.schedule)):
+                row += "O-"  # Dynamic obstacle at this time
             else:
                 cost = env.grid[r][c].cost
-                row += f"{cost} "
-        print(row)
+                row += f"{cost}-"
+        print(row.rstrip('-'))  # Remove trailing -
     print(f"Agent fuel: {agent.fuel}")
 
 def load_map(file_path: str) -> GridEnvironment:
     with open(file_path, 'r') as f:
-        lines = f.readlines()
+        lines = [line.strip().split('-') for line in f.readlines() if line.strip()]
     rows = len(lines)
-    cols = len(lines[0].strip())
+    cols = max(len(row) for row in lines) if lines else 0
     env = GridEnvironment(rows, cols)
-    for r, line in enumerate(lines):
-        for c, ch in enumerate(line.strip()):
+    for r, row in enumerate(lines):
+        for c in range(cols):
+            ch = row[c] if c < len(row) else '1'
             if ch == '#':
                 env.set_static_obstacle(r, c)
             elif ch.isdigit():
@@ -77,13 +78,18 @@ def main():
     # Dynamic obstacles
     dynamic = input("Enable dynamic obstacles? (y/n): ").strip().lower() == 'y'
     if dynamic:
-        # Add multiple dynamic obstacles
-        obs1 = DynamicObstacle([(2,1),(2,2),(2,3),(2,4),(2,5)], [2,3,4,5])  # Moves right on row 2
+        # Add multiple dynamic obstacles, adjusted for map size
+        max_col = env.cols - 1
+        obs1 = DynamicObstacle([(2,1),(2,2),(2,3),(2,4),(2,min(4,max_col))], [2,3,4,5])  # Moves right on row 2
         env.add_dynamic_obstacle(obs1)
-        obs2 = DynamicObstacle([(1,3),(2,3),(3,3),(4,3)], [3,4,5,6])  # Moves down on col 3
+        obs2 = DynamicObstacle([(1,3),(2,3),(3,3),(min(4,env.rows-1),3)], [3,4,5,6])  # Moves down on col 3
         env.add_dynamic_obstacle(obs2)
-        obs3 = DynamicObstacle([(3,1),(3,2),(3,3)], [4,5,6])  # Moves right on row 3
+        obs3 = DynamicObstacle([(3,1),(3,2),(3,min(3,max_col))], [4,5,6])  # Moves right on row 3
         env.add_dynamic_obstacle(obs3)
+        print("Dynamic obstacles added:")
+        print(f"  Obstacle 1: Moves right on row 2 from col 1 to {min(4,max_col)} at times 2-5")
+        print(f"  Obstacle 2: Moves down on col 3 from row 1 to {min(4,env.rows-1)} at times 3-6")
+        print(f"  Obstacle 3: Moves right on row 3 from col 1 to {min(3,max_col)} at times 4-6")
 
     # Fuel
     fuel = int(input("Enter initial fuel (e.g., 50): ").strip())

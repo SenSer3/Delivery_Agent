@@ -35,12 +35,13 @@ def run_experiments():
 
 def load_map(file_path: str):
     with open(file_path, 'r') as f:
-        lines = [line.strip().split() for line in f.readlines() if line.strip()]
+        lines = [line.strip().split('-') for line in f.readlines() if line.strip()]
     rows = len(lines)
-    cols = len(lines[0])
+    cols = max(len(row) for row in lines) if lines else 0
     env = GridEnvironment(rows, cols)
     for r, row in enumerate(lines):
-        for c, ch in enumerate(row):
+        for c in range(cols):
+            ch = row[c] if c < len(row) else '1'
             if ch == '#':
                 env.set_static_obstacle(r, c)
             elif ch.isdigit():
