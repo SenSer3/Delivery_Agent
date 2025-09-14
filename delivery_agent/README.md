@@ -31,6 +31,17 @@ Example:
 python delivery_agent/main.py --planner a_star --map maps/medium.txt
 ```
 
+## Interactive Simulation
+You can run an interactive simulation using:
+```bash
+python delivery_agent/interactive.py
+```
+This script allows you to:
+- Select a map (small, medium, large, dynamic) by entering a number (1-4).
+- Choose whether to enable dynamic obstacles (y/n).
+- Enter the initial fuel amount (integer).
+The agent will plan a path and simulate movement step-by-step, showing the map, agent position, fuel, and replanning if blocked by dynamic obstacles.
+
 ## Reproducibility
 - All planners and maps are included.
 - Tests provided for core functions.
